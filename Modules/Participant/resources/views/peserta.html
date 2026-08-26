@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peserta — SerGen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+  :root{
+    --teal:#2A9D8F;
+    --teal-deep:#1E7268;
+    --teal-soft:#E3F3F1;
+    --coral:#FF8C7A;
+    --coral-soft:#FFEDE9;
+    --sun:#FFC978;
+    --sun-soft:#FFF6E6;
+    --sky:#EEF6F5;
+    --cream:#FBF9F4;
+    --ink:#1F2A2E;
+    --ink-soft:#66787B;
+    --ink-faint:#9AACAA;
+    --line:#E7EDEC;
+    --sidebar-w:264px;
+    --sidebar-w-collapsed:76px;
+    --topbar-h:66px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(42,157,143,0.07), transparent 40%),
+      radial-gradient(circle at 90% 92%, rgba(255,140,122,0.06), transparent 40%),
+      var(--cream);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  .ambient{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+  .ambient .blob{ position:absolute; border-radius:50%; opacity:0.35; filter:blur(6px); }
+  .ambient .blob.a1{ width:320px;height:320px; top:-100px; right:6%; background:radial-gradient(circle at 30% 30%, rgba(42,157,143,0.28), transparent 70%); animation: driftA 24s ease-in-out infinite; }
+  .ambient .blob.a2{ width:260px;height:260px; bottom:-80px; left:30%; background:radial-gradient(circle at 40% 40%, rgba(255,201,120,0.25), transparent 70%); animation: driftB 20s ease-in-out infinite; }
+  @keyframes driftA{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,30px)} }
+  @keyframes driftB{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(25px,-20px)} }
+  @media (prefers-reduced-motion: reduce){ .ambient .blob{ animation:none !important; } }
+
+  /* ================= Sidebar ================= */
+  .sidebar{ position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w); background:linear-gradient(185deg, var(--teal) 0%, var(--teal-deep) 100%); color:#fff; z-index:40; display:flex; flex-direction:column; transition: width .25s ease, transform .25s ease; overflow:hidden; }
+  .sidebar.collapsed{ width:var(--sidebar-w-collapsed); }
+  .side-brand{ height:var(--topbar-h); display:flex; align-items:center; gap:10px; padding:0 20px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.12); }
+  .side-brand .mark{ width:34px;height:34px; border-radius:10px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  .side-brand span.name{ font-weight:700; font-size:16.5px; white-space:nowrap; }
+  .sidebar.collapsed .side-brand span.name{ display:none; }
+  .side-scroll{ flex:1; overflow-y:auto; padding:18px 12px 18px; }
+  .side-scroll::-webkit-scrollbar{ width:5px; }
+  .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.18); border-radius:10px; }
+  .nav-category{ font-size:11px; font-weight:600; letter-spacing:0.8px; color:rgba(255,255,255,0.5); text-transform:uppercase; padding:14px 12px 8px; white-space:nowrap; }
+  .sidebar.collapsed .nav-category{ text-align:center; padding:14px 0 8px; }
+  .sidebar.collapsed .nav-category span{ display:none; }
+  .sidebar.collapsed .nav-category::after{ content:"···"; opacity:0.4; }
+  .nav-item{ display:flex; align-items:center; gap:12px; padding:10.5px 12px; border-radius:12px; color:rgba(255,255,255,0.82); text-decoration:none; font-size:13.5px; font-weight:400; margin-bottom:3px; position:relative; transition: background .18s ease, color .18s ease; white-space:nowrap; }
+  .nav-item i.ic{ font-size:17px; width:20px; text-align:center; flex-shrink:0; }
+  .nav-item span.label{ overflow:hidden; text-overflow:ellipsis; }
+  .sidebar.collapsed .nav-item span.label{ display:none; }
+  .sidebar.collapsed .nav-item{ justify-content:center; padding:10.5px 0; }
+  .nav-item:hover{ background:rgba(255,255,255,0.10); color:#fff; }
+  .nav-item.active{ background:rgba(255,255,255,0.16); color:#fff; font-weight:500; }
+  .nav-item.active::before{ content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; background:var(--sun); border-radius:0 4px 4px 0; }
+  .sidebar.collapsed .nav-item.active::before{ display:none; }
+  .nav-item .badge-count{ margin-left:auto; background:var(--coral); color:#fff; font-size:10.5px; font-weight:600; padding:1.5px 7px; border-radius:20px; }
+  .sidebar.collapsed .nav-item .badge-count{ display:none; }
+  .side-foot{ padding:14px 20px 18px; font-size:11px; color:rgba(255,255,255,0.45); border-top:1px solid rgba(255,255,255,0.1); white-space:nowrap; }
+  .sidebar.collapsed .side-foot{ text-align:center; padding:14px 4px 18px; }
+  .sidebar.collapsed .side-foot span{ display:none; }
+
+  /* ================= Main shell ================= */
+  .main{ margin-left:var(--sidebar-w); transition: margin-left .25s ease; position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; }
+  .main.collapsed{ margin-left:var(--sidebar-w-collapsed); }
+
+  /* ================= Topbar ================= */
+  .topbar{ height:var(--topbar-h); background:rgba(255,255,255,0.75); backdrop-filter: blur(14px); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 22px; position:sticky; top:0; z-index:30; gap:16px; }
+  .topbar-left{ display:flex; align-items:center; gap:14px; flex:1; min-width:0; }
+  .btn-icon{ width:38px;height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; background:transparent; border:none; cursor:pointer; color:var(--ink-soft); font-size:17px; transition: background .15s ease, color .15s ease; flex-shrink:0; }
+  .btn-icon:hover{ background:var(--teal-soft); color:var(--teal-deep); }
+  .search-box{ display:flex; align-items:center; gap:8px; background:var(--sky); border:1px solid var(--line); border-radius:12px; padding:8px 14px; max-width:340px; width:100%; }
+  .search-box i{ color:var(--ink-faint); font-size:15px; }
+  .search-box input{ border:none; background:transparent; outline:none; font-family:'Poppins',sans-serif; font-size:13px; color:var(--ink); width:100%; }
+  .search-box input::placeholder{ color:var(--ink-faint); }
+  @media (max-width:767px){ .search-box{ display:none; } }
+  .topbar-right{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .notif-dot{ position:relative; }
+  .notif-dot::after{ content:""; position:absolute; top:7px; right:8px; width:7px;height:7px; border-radius:50%; background:var(--coral); border:1.5px solid #fff; }
+  .user-trigger{ display:flex; align-items:center; gap:10px; padding:6px 12px 6px 6px; border-radius:14px; cursor:pointer; border:1px solid transparent; transition: background .15s ease, border-color .15s ease; }
+  .user-trigger:hover{ background:var(--sky); border-color:var(--line); }
+  .avatar{ width:36px;height:36px; border-radius:11px; background:linear-gradient(135deg, var(--teal), var(--teal-deep)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; flex-shrink:0; }
+  .user-meta{ line-height:1.3; }
+  .user-meta .uname{ font-size:13px; font-weight:600; color:var(--ink); }
+  .user-meta .urole{ font-size:11px; color:var(--ink-faint); }
+  @media (max-width:575px){ .user-meta{ display:none; } }
+  .user-trigger .chev{ font-size:13px; color:var(--ink-faint); transition:transform .2s ease; }
+  .user-trigger.open .chev{ transform:rotate(180deg); }
+  .dropdown{ position:absolute; top:calc(100% + 10px); right:0; width:260px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 20px 45px -14px rgba(31,42,46,0.22); padding:8px; opacity:0; visibility:hidden; transform:translateY(-8px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; z-index:50; }
+  .dropdown.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  .dd-head{ display:flex; align-items:center; gap:12px; padding:12px 10px; border-bottom:1px solid var(--line); margin-bottom:6px; }
+  .dd-head .avatar{ width:42px;height:42px; font-size:15px; }
+  .dd-head .uname{ font-size:13.5px; font-weight:600; color:var(--ink); }
+  .dd-head .uemail{ font-size:11.5px; color:var(--ink-faint); margin-top:1px; }
+  .dd-role-badge{ display:inline-block; margin-top:5px; font-size:10px; font-weight:600; color:var(--teal-deep); background:var(--teal-soft); padding:2px 8px; border-radius:20px; }
+  .dd-item{ display:flex; align-items:center; gap:11px; padding:9.5px 10px; border-radius:10px; font-size:13px; color:var(--ink); text-decoration:none; transition: background .15s ease; }
+  .dd-item i{ font-size:15px; color:var(--ink-soft); width:18px; }
+  .dd-item:hover{ background:var(--sky); }
+  .dd-item.danger{ color:#E4573D; }
+  .dd-item.danger i{ color:#E4573D; }
+  .dd-item.danger:hover{ background:var(--coral-soft); }
+  .dd-sep{ height:1px; background:var(--line); margin:6px 2px; }
+
+  /* ================= Content ================= */
+  .content{ flex:1; padding:26px; }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
+  .page-head h1{ font-size:22px; font-weight:600; color:var(--ink); }
+  .page-head p{ font-size:13px; color:var(--ink-soft); font-weight:300; margin-top:3px; }
+  .head-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-primary{ display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, var(--teal), var(--teal-deep)); color:#fff; border:none; padding:11px 18px; border-radius:12px; font-family:'Poppins',sans-serif; font-weight:500; font-size:13.5px; cursor:pointer; box-shadow:0 10px 22px -8px rgba(30,114,104,0.4); transition: transform .15s ease; }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{ padding:10.5px 16px; border-radius:12px; border:1.5px solid var(--line); background:#fff; color:var(--ink-soft); font-family:'Poppins',sans-serif; font-weight:500; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .btn-ghost:hover{ border-color:var(--teal); color:var(--teal-deep); }
+
+  /* Stat cards */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px; }
+  @media (max-width:1199px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:575px){ .stat-grid{ grid-template-columns:1fr; } }
+  .stat-card{ background:rgba(255,255,255,0.85); backdrop-filter: blur(10px); border:1px solid var(--line); border-radius:18px; padding:18px 20px; display:flex; align-items:center; gap:14px; transition: transform .2s ease, box-shadow .2s ease; }
+  .stat-card:hover{ transform:translateY(-4px); box-shadow:0 18px 34px -16px rgba(31,42,46,0.18); }
+  .stat-card .icon-box{ width:42px;height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+  .stat-card.teal .icon-box{ background:var(--teal-soft); color:var(--teal-deep); }
+  .stat-card.coral .icon-box{ background:var(--coral-soft); color:var(--coral); }
+  .stat-card.sun .icon-box{ background:var(--sun-soft); color:#C98A2E; }
+  .stat-card.sky .icon-box{ background:#E8EEFB; color:#4C6EF5; }
+  .stat-card .value{ font-size:21px; font-weight:700; color:var(--ink); line-height:1.2; }
+  .stat-card .label{ font-size:12px; color:var(--ink-soft); }
+
+  /* Toolbar */
+  .toolbar{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{ padding:7.5px 15px; border-radius:20px; font-size:12.5px; font-weight:500; background:#fff; border:1px solid var(--line); color:var(--ink-soft); cursor:pointer; transition: all .15s ease; white-space:nowrap; }
+  .chip:hover{ border-color:var(--teal); color:var(--teal-deep); }
+  .chip.active{ background:var(--teal); border-color:var(--teal); color:#fff; }
+
+  .local-search{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:9px 14px; max-width:260px; width:100%; }
+  .local-search i{ color:var(--ink-faint); font-size:14px; }
+  .local-search input{ border:none; outline:none; font-family:'Poppins',sans-serif; font-size:12.5px; color:var(--ink); width:100%; }
+  .local-search input::placeholder{ color:var(--ink-faint); }
+
+  /* Table panel */
+  .panel{ background:rgba(255,255,255,0.9); backdrop-filter: blur(10px); border:1px solid var(--line); border-radius:18px; padding:6px; margin-bottom:18px; overflow-x:auto; }
+  table.ptbl{ width:100%; border-collapse:collapse; min-width:820px; }
+  table.ptbl th{
+    text-align:left; font-size:10.8px; text-transform:uppercase; letter-spacing:0.4px;
+    color:var(--ink-faint); font-weight:600; padding:14px 14px 12px; border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  table.ptbl th.chk, table.ptbl td.chk{ width:40px; }
+  table.ptbl td{ padding:13px 14px; font-size:13px; color:var(--ink); border-bottom:1px solid var(--line); vertical-align:middle; }
+  table.ptbl tr:last-child td{ border-bottom:none; }
+  table.ptbl tr:hover td{ background:var(--sky); }
+
+  input[type="checkbox"].rowchk{ width:16px;height:16px; accent-color:var(--teal); cursor:pointer; }
+
+  .p-name{ display:flex; align-items:center; gap:10px; }
+  .p-avatar{
+    width:34px;height:34px; border-radius:10px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:600; color:#fff;
+  }
+  .p-name .pn-txt .pnn{ font-weight:500; }
+  .p-name .pn-txt .pne{ font-size:11px; color:var(--ink-faint); margin-top:1px; }
+
+  .no-cert{ font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--sky); padding:3px 8px; border-radius:6px; }
+
+  .batch-tag{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); }
+  .batch-tag .dotc{ width:6px;height:6px; border-radius:50%; }
+
+  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; }
+  .pill.done{ background:var(--teal-soft); color:var(--teal-deep); }
+  .pill.process{ background:var(--sun-soft); color:#C98A2E; }
+  .pill.failed{ background:var(--coral-soft); color:#D64D3A; }
+
+  .row-actions{ display:flex; gap:6px; }
+  .row-actions button{
+    width:30px;height:30px; border-radius:8px; border:1px solid var(--line); background:#fff;
+    color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12.5px;
+    transition: all .15s ease;
+  }
+  .row-actions button:hover{ border-color:var(--teal); color:var(--teal-deep); background:var(--teal-soft); }
+
+  /* Pagination */
+  .pagination-bar{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    padding:14px 18px;
+  }
+  .pagination-bar .pinfo{ font-size:12px; color:var(--ink-faint); }
+  .pagination-bar .pinfo b{ color:var(--ink); font-weight:600; }
+  .pager{ display:flex; gap:6px; align-items:center; }
+  .pager button{
+    min-width:32px;height:32px; border-radius:9px; border:1px solid var(--line); background:#fff;
+    color:var(--ink-soft); font-family:'Poppins',sans-serif; font-size:12.5px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition: all .15s ease;
+  }
+  .pager button:hover{ border-color:var(--teal); color:var(--teal-deep); }
+  .pager button.active{ background:var(--teal); border-color:var(--teal); color:#fff; }
+
+  /* Footer */
+  .footer{ padding:18px 26px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-faint); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .footer a{ color:var(--ink-soft); text-decoration:none; margin-left:14px; }
+  .footer a:hover{ color:var(--teal-deep); }
+
+  @media (max-width:991px){
+    .sidebar{ transform:translateX(-100%); width:264px; }
+    .sidebar.mobile-open{ transform:translateX(0); }
+    .main, .main.collapsed{ margin-left:0; }
+    .overlay{ position:fixed; inset:0; background:rgba(15,26,25,0.4); z-index:35; opacity:0; visibility:hidden; transition: opacity .2s ease; }
+    .overlay.show{ opacity:1; visibility:visible; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="ambient">
+    <div class="blob a1"></div>
+    <div class="blob a2"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand">
+      <div class="mark"><i class="bi bi-patch-check-fill"></i></div>
+      <span class="name">SerGen</span>
+    </div>
+
+    <div class="side-scroll">
+      <div class="nav-category"><span>Utama</span></div>
+      <a class="nav-item" href="#"><i class="bi bi-grid-1x2-fill ic"></i><span class="label">Dashboard</span></a>
+
+      <div class="nav-category"><span>Sertifikat</span></div>
+      <a class="nav-item" href="#"><i class="bi bi-file-earmark-image ic"></i><span class="label">Template</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-magic ic"></i><span class="label">Buat Sertifikat</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-layers ic"></i><span class="label">Batch Generate</span><span class="badge-count">3</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-qr-code-scan ic"></i><span class="label">Verifikasi</span></a>
+
+      <div class="nav-category"><span>Data</span></div>
+      <a class="nav-item active" href="#"><i class="bi bi-people ic"></i><span class="label">Peserta</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-file-earmark-spreadsheet ic"></i><span class="label">Import Excel</span></a>
+
+      <div class="nav-category"><span>Pengaturan</span></div>
+      <a class="nav-item" href="#"><i class="bi bi-person-badge ic"></i><span class="label">Pengguna &amp; Role</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-gear ic"></i><span class="label">Preferensi Akun</span></a>
+    </div>
+
+    <div class="side-foot"><span>SerGen v1.0 · Kominfo Kota Pekalongan</span></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main" id="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon" id="sidebarToggle"><i class="bi bi-list"></i></button>
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Cari template, batch, atau peserta...">
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button class="btn-icon notif-dot"><i class="bi bi-bell"></i></button>
+
+        <div style="position:relative;">
+          <div class="user-trigger" id="userTrigger">
+            <div class="avatar">FL</div>
+            <div class="user-meta">
+              <div class="uname">fLINK</div>
+              <div class="urole">Administrator</div>
+            </div>
+            <i class="bi bi-chevron-down chev"></i>
+          </div>
+
+          <div class="dropdown" id="userDropdown">
+            <div class="dd-head">
+              <div class="avatar">FL</div>
+              <div>
+                <div class="uname">fLINK</div>
+                <div class="uemail">flink@pekalongankota.go.id</div>
+                <span class="dd-role-badge">Administrator</span>
+              </div>
+            </div>
+            <a class="dd-item" href="#"><i class="bi bi-person-circle"></i> Profil Saya</a>
+            <a class="dd-item" href="#"><i class="bi bi-gear"></i> Pengaturan Akun</a>
+            <a class="dd-item" href="#"><i class="bi bi-life-preserver"></i> Bantuan</a>
+            <div class="dd-sep"></div>
+            <a class="dd-item danger" href="#"><i class="bi bi-box-arrow-right"></i> Keluar</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <h1>Peserta</h1>
+          <p>Kelola seluruh data peserta dari semua batch sertifikat.</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn-ghost"><i class="bi bi-file-earmark-spreadsheet"></i> Import Excel</button>
+          <button class="btn-primary"><i class="bi bi-plus-lg"></i> Tambah Peserta</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card teal">
+          <div class="icon-box"><i class="bi bi-people"></i></div>
+          <div><div class="value">6.120</div><div class="label">Total Peserta</div></div>
+        </div>
+        <div class="stat-card sky">
+          <div class="icon-box"><i class="bi bi-award"></i></div>
+          <div><div class="value">5.842</div><div class="label">Sertifikat Terbit</div></div>
+        </div>
+        <div class="stat-card sun">
+          <div class="icon-box"><i class="bi bi-hourglass-split"></i></div>
+          <div><div class="value">216</div><div class="label">Menunggu Proses</div></div>
+        </div>
+        <div class="stat-card coral">
+          <div class="icon-box"><i class="bi bi-exclamation-circle"></i></div>
+          <div><div class="value">62</div><div class="label">Gagal / Perlu Cek</div></div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="chip-row">
+          <div class="chip active">Semua Batch</div>
+          <div class="chip">Pelatihan Digital Kominfo</div>
+          <div class="chip">Workshop UMKM Batik</div>
+          <div class="chip">Webinar SPBE 2026</div>
+        </div>
+        <div class="local-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Cari nama atau nomor...">
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="panel">
+        <table class="ptbl">
+          <thead>
+            <tr>
+              <th class="chk"><input type="checkbox" class="rowchk"></th>
+              <th>Peserta</th>
+              <th>No. Sertifikat</th>
+              <th>Batch / Kegiatan</th>
+              <th>Tanggal Terbit</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td class="chk"><input type="checkbox" class="rowchk"></td>
+              <td>
+                <div class="p-name">
+                  <div class="p-avatar" style="background:linear-gradient(135deg,#2A9D8F,#1E7268);">AF</div>
+                  <div class="pn-txt"><div class="pnn">Ahmad Fauzan</div><div class="pne">ahmad.fauzan@email.com</div></div>
+                </div>
+              </td>
+              <td><span class="no-cert">SG/2026/0842</span></td>
+              <td><span class="batch-tag"><span class="dotc" style="background:var(--teal);"></span> Pelatihan Digital Kominfo</span></td>
+              <td>25 Agu 2026</td>
+              <td><span class="pill done"><i class="bi bi-check-circle-fill"></i> Terbit</span></td>
+              <td>
+                <div class="row-actions">
+                  <button title="Unduh"><i class="bi bi-download"></i></button>
+                  <button title="Lihat"><i class="bi bi-eye"></i></button>
+                  <button title="Edit"><i class="bi bi-pencil"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="chk"><input type="checkbox" class="rowchk"></td>
+              <td>
+                <div class="p-name">
+                  <div class="p-avatar" style="background:linear-gradient(135deg,#FF8C7A,#E4573D);">NA</div>
+                  <div class="pn-txt"><div class="pnn">Nur Aisyah</div><div class="pne">nur.aisyah@email.com</div></div>
+                </div>
+              </td>
+              <td><span class="no-cert">SG/2026/0841</span></td>
+              <td><span class="batch-tag"><span class="dotc" style="background:var(--coral);"></span> Workshop UMKM Batik</span></td>
+              <td>20 Agu 2026</td>
+              <td><span class="pill process"><i class="bi bi-arrow-repeat"></i> Diproses</span></td>
+              <td>
+                <div class="row-actions">
+                  <button title="Lihat"><i class="bi bi-eye"></i></button>
+                  <button title="Edit"><i class="bi bi-pencil"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="chk"><input type="checkbox" class="rowchk"></td>
+              <td>
+                <div class="p-name">
+                  <div class="p-avatar" style="background:linear-gradient(135deg,#4C6EF5,#3B57D6);">BS</div>
+                  <div class="pn-txt"><div class="pnn">Budi Santoso</div><div class="pne">budi.santoso@email.com</div></div>
+                </div>
+              </td>
+              <td><span class="no-cert">SG/2026/0798</span></td>
+              <td><span class="batch-tag"><span class="dotc" style="background:#4C6EF5;"></span> Webinar SPBE 2026</span></td>
+              <td>18 Agu 2026</td>
+              <td><span class="pill done"><i class="bi bi-check-circle-fill"></i> Terbit</span></td>
+              <td>
+                <div class="row-actions">
+                  <button title="Unduh"><i class="bi bi-download"></i></button>
+                  <button title="Lihat"><i class="bi bi-eye"></i></button>
+                  <button title="Edit"><i class="bi bi-pencil"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="chk"><input type="checkbox" class="rowchk"></td>
+              <td>
+                <div class="p-name">
+                  <div class="p-avatar" style="background:linear-gradient(135deg,#C98A2E,#FFC978);">SR</div>
+                  <div class="pn-txt"><div class="pnn">Siti Rahmawati</div><div class="pne">siti.rahmawati@email.com</div></div>
+                </div>
+              </td>
+              <td><span class="no-cert">SG/2026/0756</span></td>
+              <td><span class="batch-tag"><span class="dotc" style="background:var(--teal);"></span> Sertifikasi Keamanan Data</span></td>
+              <td>15 Agu 2026</td>
+              <td><span class="pill failed"><i class="bi bi-exclamation-circle-fill"></i> Gagal</span></td>
+              <td>
+                <div class="row-actions">
+                  <button title="Coba lagi"><i class="bi bi-arrow-clockwise"></i></button>
+                  <button title="Edit"><i class="bi bi-pencil"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="chk"><input type="checkbox" class="rowchk"></td>
+              <td>
+                <div class="p-name">
+                  <div class="p-avatar" style="background:linear-gradient(135deg,#2A9D8F,#1E7268);">RH</div>
+                  <div class="pn-txt"><div class="pnn">Rizki Hidayat</div><div class="pne">rizki.hidayat@email.com</div></div>
+                </div>
+              </td>
+              <td><span class="no-cert">SG/2026/0755</span></td>
+              <td><span class="batch-tag"><span class="dotc" style="background:var(--teal);"></span> Pelatihan Digital Kominfo</span></td>
+              <td>25 Agu 2026</td>
+              <td><span class="pill done"><i class="bi bi-check-circle-fill"></i> Terbit</span></td>
+              <td>
+                <div class="row-actions">
+                  <button title="Unduh"><i class="bi bi-download"></i></button>
+                  <button title="Lihat"><i class="bi bi-eye"></i></button>
+                  <button title="Edit"><i class="bi bi-pencil"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="chk"><input type="checkbox" class="rowchk"></td>
+              <td>
+                <div class="p-name">
+                  <div class="p-avatar" style="background:linear-gradient(135deg,#FF8C7A,#E4573D);">DP</div>
+                  <div class="pn-txt"><div class="pnn">Dewi Permata</div><div class="pne">dewi.permata@email.com</div></div>
+                </div>
+              </td>
+              <td><span class="no-cert">SG/2026/0701</span></td>
+              <td><span class="batch-tag"><span class="dotc" style="background:var(--coral);"></span> Workshop UMKM Batik</span></td>
+              <td>20 Agu 2026</td>
+              <td><span class="pill process"><i class="bi bi-arrow-repeat"></i> Diproses</span></td>
+              <td>
+                <div class="row-actions">
+                  <button title="Lihat"><i class="bi bi-eye"></i></button>
+                  <button title="Edit"><i class="bi bi-pencil"></i></button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <div class="pagination-bar">
+          <div class="pinfo">Menampilkan <b>1–6</b> dari <b>6.120</b> peserta</div>
+          <div class="pager">
+            <button><i class="bi bi-chevron-left"></i></button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>…</button>
+            <button>510</button>
+            <button><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>© 2026 SerGen — Dinas Kominfo Kota Pekalongan</div>
+      <div><a href="#">Bantuan</a><a href="#">Dokumentasi</a><a href="#">Privasi</a></div>
+    </footer>
+  </div>
+
+  <script>
+    // Sidebar collapse (desktop) / off-canvas (mobile)
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+    const overlay = document.getElementById('overlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    function isMobile(){ return window.innerWidth <= 991; }
+    toggleBtn.addEventListener('click', () => {
+      if(isMobile()){ sidebar.classList.toggle('mobile-open'); overlay.classList.toggle('show'); }
+      else{ sidebar.classList.toggle('collapsed'); main.classList.toggle('collapsed'); }
+    });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('mobile-open'); overlay.classList.remove('show'); });
+    window.addEventListener('resize', () => { if(!isMobile()){ sidebar.classList.remove('mobile-open'); overlay.classList.remove('show'); } });
+
+    // User dropdown
+    const userTrigger = document.getElementById('userTrigger');
+    const userDropdown = document.getElementById('userDropdown');
+    userTrigger.addEventListener('click', (e) => { e.stopPropagation(); userTrigger.classList.toggle('open'); userDropdown.classList.toggle('show'); });
+    document.addEventListener('click', (e) => { if(!userDropdown.contains(e.target) && !userTrigger.contains(e.target)){ userDropdown.classList.remove('show'); userTrigger.classList.remove('open'); } });
+
+    // Chip filter
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+
+    // Select all checkbox
+    const headChk = document.querySelector('th.chk .rowchk');
+    headChk.addEventListener('change', () => {
+      document.querySelectorAll('td.chk .rowchk').forEach(c => c.checked = headChk.checked);
+    });
+
+    // Pager
+    document.querySelectorAll('.pager button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if(btn.textContent.trim().match(/^\d+$/)){
+          document.querySelectorAll('.pager button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

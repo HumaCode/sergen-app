@@ -35,6 +35,24 @@ class ParticipantServiceProvider extends ModuleServiceProvider
     ];
 
     /**
+     * Register services.
+     */
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->bind(
+            \Modules\Participant\Repositories\Contracts\ParticipantRepositoryInterface::class,
+            \Modules\Participant\Repositories\Eloquent\ParticipantRepository::class
+        );
+
+        $this->app->bind(
+            \Modules\Participant\Services\Contracts\ParticipantServiceInterface::class,
+            \Modules\Participant\Services\ParticipantService::class
+        );
+    }
+
+    /**
      * Define module schedules.
      * 
      * @param $schedule

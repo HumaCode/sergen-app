@@ -2,55 +2,47 @@
 
 namespace Modules\Participant\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Resources\PaginateResource;
+use Inertia\Inertia;
+use Inertia\Response;
+use Illuminate\Http\JsonResponse;
+use Modules\Participant\Http\Requests\ParticipantFilterRequest;
+use Modules\Participant\Http\Resources\ParticipantResource;
+use Modules\Participant\Services\Contracts\ParticipantServiceInterface;
 
 class ParticipantController extends Controller
 {
+    public function __construct(
+        protected ParticipantServiceInterface $participantService
+    ) {}
+
     /**
-     * Display a listing of the resource.
+     * Display a listing of the participants page via Inertia.
      */
-    public function index()
+    public function index(ParticipantFilterRequest $request): Response|JsonResponse
     {
-        return view('participant::index');
+        $filters = $request->validated();
+        $perPage = (int) ($filters['per_page'] ?? 10);
+
+        $paginatedData = $this->participantService->getPaginatedParticipants($filters, $perPage);
+        $stats = $this->participantService->getStatsSummary();
+
+        // If requested via JSON API
+        if ($request->wantsJson()) {
+            $paginatedResource = new PaginateResource($paginatedData, ParticipantResource::class);
+            return ResponseHelper::success('Data peserta berhasil diambil', [
+                'participants' => $paginatedResource,
+                'stats'        => $stats,
+            ]);
+        }
+
+        // Return Inertia page response
+        return Inertia::render('Participant::Index', [
+            'participants' => new PaginateResource($paginatedData, ParticipantResource::class),
+            'stats'        => $stats,
+            'filters'      => $filters,
+        ]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('participant::create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('participant::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('participant::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }
