@@ -1,0 +1,11 @@
+{
+    "name": "UserAccess",
+    "alias": "useraccess",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\UserAccess\\Providers\\UserAccessServiceProvider"
+    ],
+    "files": []
+}

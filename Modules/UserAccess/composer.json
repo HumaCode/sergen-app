@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/useraccess",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\UserAccess\\": "app/",
+            "Modules\\UserAccess\\Database\\Factories\\": "database/factories/",
+            "Modules\\UserAccess\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\UserAccess\\Tests\\": "tests/"
+        }
+    }
+}

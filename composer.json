@@ -16,6 +16,7 @@
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "nwidart/laravel-modules": "^13.0",
+        "spatie/laravel-permission": "^8.3",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
@@ -35,6 +36,9 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "Modules\\UserAccess\\": "Modules/UserAccess/app/",
+            "Modules\\UserAccess\\Database\\Seeders\\": "Modules/UserAccess/database/seeders/",
+            "Modules\\UserAccess\\Database\\Factories\\": "Modules/UserAccess/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
