@@ -32,18 +32,26 @@ Aplikasi web untuk membuat sertifikat digital dengan cara menempatkan data dinam
 
 ---
 
-## 3. Role & Hak Akses (spatie/laravel-permission)
+## 3. Role, Permission & Dynamic Menu Management
 
-### Role
+Semua fitur manajemen pengguna, peran (Role), hak akses (Permission), dan menu dinamis dikelompokkan ke dalam modul **`UserAccess`** (atau `AccessControl`).
+
+### Role & Permission (spatie/laravel-permission)
 | Role | Deskripsi |
 |---|---|
-| `super-admin` | Akses penuh ke seluruh sistem |
+| `super-admin` | Akses penuh ke seluruh sistem & manajemen menu dinamis |
 | `admin` | Kelola template, peserta, dan generate sertifikat |
 | `operator` | Hanya bisa input data peserta & generate sertifikat dari template yang sudah ada |
 | `viewer` | Hanya bisa melihat & mengunduh sertifikat yang sudah terbit |
 
+### Manajemen Menu Dinamis (`menus` & `menu_items`)
+Sistem dilengkapi dengan modul **Dynamic Navigation Menu** yang mengontrol tampilan sidebar/topbar aplikasi secara kondisional berdasarkan role/permission pengguna yang sedang login.
+
 ### Permission (contoh)
 ```
+menu.manage
+role.manage
+user.manage
 template.view
 template.create
 template.update
@@ -54,11 +62,10 @@ participant.import
 certificate.generate
 certificate.download
 certificate.revoke
-user.manage
-role.manage
 ```
 
-Assignment role/permission dikelola lewat panel admin, menggunakan trait `HasRoles` pada model `User`.
+Assignment role/permission dan pengaturan menu dikelola lewat panel admin (modul `UserAccess`).
+
 
 ---
 
@@ -74,6 +81,30 @@ Semua tabel menggunakan `ulid` sebagai primary key (`$table->ulid('id')->primary
 | email | string, unique |
 | password | string |
 | ... | (standar Laravel + kolom spatie permission via tabel pivot) |
+
+### `menus` *(Management Menu Utama)*
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | ulid, PK | |
+| name | string | Nama kelompok menu (mis: `sidebar_main`, `header_menu`) |
+| code | string, unique | Slug identifier (mis: `sidebar`) |
+| description | string, nullable | |
+| timestamps | | |
+
+### `menu_items` *(Item Navigasi Dinamis)*
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | ulid, PK | |
+| menu_id | ulid, FK → menus.id | |
+| parent_id | ulid, nullable, FK → menu_items.id | Untuk nested submenu/dropdown |
+| title | string | Label menu |
+| url_or_route | string | Path URL atau nama Route |
+| icon | string, nullable | Class Bootstrap Icon (mis: `bi-people`) |
+| permission_name | string, nullable | Guard permission (mis: `template.view`) |
+| order | integer | Urutan posisi |
+| is_active | boolean, default true | |
+| timestamps | | |
+
 
 ### `certificate_templates`
 | Kolom | Tipe | Keterangan |
