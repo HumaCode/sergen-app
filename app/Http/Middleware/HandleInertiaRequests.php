@@ -34,6 +34,9 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'menus' => function () {
+                return menus(true);
+            },
         ];
     }
 }

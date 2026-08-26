@@ -9,7 +9,10 @@ export default function AuthenticatedLayout({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage<PageProps>().props.auth.user;
+    const pageProps = usePage<PageProps>().props;
+    const user = pageProps.auth.user;
+    const menus = pageProps.menus || {};
+
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -40,6 +43,16 @@ export default function AuthenticatedLayout({
             return (parts[0][0] + parts[1][0]).toUpperCase();
         }
         return name.substring(0, 2).toUpperCase();
+    };
+
+    // Helper to check active route matching menu url
+    const isMenuActive = (url: string) => {
+        if (!url) return false;
+        const currentPath = window.location.pathname;
+        if (url === '/dashboard' || url === 'dashboard') {
+            return route().current('dashboard');
+        }
+        return currentPath.includes(url);
     };
 
     return (
@@ -78,61 +91,40 @@ export default function AuthenticatedLayout({
                 </div>
 
                 <div className="side-scroll">
-                    <div className="nav-category">
-                        <span>Utama</span>
-                    </div>
-                    <Link
-                        className={`nav-item ${route().current('dashboard') ? 'active' : ''}`}
-                        href={route('dashboard')}
-                    >
-                        <i className="bi bi-grid-1x2-fill ic"></i>
-                        <span className="label">Dashboard</span>
-                    </Link>
-
-                    <div className="nav-category">
-                        <span>Sertifikat</span>
-                    </div>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-file-earmark-image ic"></i>
-                        <span className="label">Template</span>
-                    </a>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-magic ic"></i>
-                        <span className="label">Buat Sertifikat</span>
-                    </a>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-layers ic"></i>
-                        <span className="label">Batch Generate</span>
-                        <span className="badge-count">3</span>
-                    </a>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-qr-code-scan ic"></i>
-                        <span className="label">Verifikasi</span>
-                    </a>
-
-                    <div className="nav-category">
-                        <span>Data</span>
-                    </div>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-people ic"></i>
-                        <span className="label">Peserta</span>
-                    </a>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-file-earmark-spreadsheet ic"></i>
-                        <span className="label">Import Excel</span>
-                    </a>
-
-                    <div className="nav-category">
-                        <span>Pengaturan</span>
-                    </div>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-person-badge ic"></i>
-                        <span className="label">Pengguna &amp; Role</span>
-                    </a>
-                    <a className="nav-item" href="#">
-                        <i className="bi bi-gear ic"></i>
-                        <span className="label">Preferensi Akun</span>
-                    </a>
+                    {Object.keys(menus).length > 0 ? (
+                        Object.entries(menus).map(([category, items]) => (
+                            <div key={category}>
+                                <div className="nav-category">
+                                    <span>{category}</span>
+                                </div>
+                                {items.map((menu) => (
+                                    <Link
+                                        key={menu.id || menu.name}
+                                        className={`nav-item ${
+                                            isMenuActive(menu.url) ? 'active' : ''
+                                        }`}
+                                        href={menu.url ? (menu.url.startsWith('/') ? menu.url : `/${menu.url}`) : '#'}
+                                    >
+                                        <i className={`bi ${menu.icon || 'bi-circle'} ic`}></i>
+                                        <span className="label">{menu.name}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        ))
+                    ) : (
+                        <div>
+                            <div className="nav-category">
+                                <span>Utama</span>
+                            </div>
+                            <Link
+                                className={`nav-item ${route().current('dashboard') ? 'active' : ''}`}
+                                href={route('dashboard')}
+                            >
+                                <i className="bi bi-grid-1x2-fill ic"></i>
+                                <span className="label">Dashboard</span>
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 <div className="side-foot">

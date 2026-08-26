@@ -25,4 +25,12 @@ class Menu extends Model
             'orders' => 'integer',
         ];
     }
+
+    /**
+     * Get the permissions associated with the menu.
+     */
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'menu_has_permissions', 'menu_id', 'permission_id');
+    }
 }

@@ -54,38 +54,63 @@ if (!function_exists('tgl_indo')) {
 if (!function_exists('menus')) {
     function menus($grouped = true)
     {
-        // 1. Ambil data asli (flat) dari cache agar query hanya 1x (simpan sebagai array mentah)
-        $allMenus = Cache::rememberForever('menus_data', function () {
-            return Menu::where('is_active', true)
-                ->orderBy('orders')
-                ->get()
-                ->toArray();
-        });
-
-        // 2. Rekonstruksi array kembali menjadi Collection of Menu models
-        $allMenusCollection = collect($allMenus)->map(function ($item) {
-            $menu = new Menu();
-            $menu->forceFill($item);
-            $menu->exists = true;
-            return $menu;
-        });
-
-        // 3. Jika minta grouped (untuk Sidebar), lakukan grouping di memori PHP
-        if ($grouped) {
-            return $allMenusCollection->groupBy('category');
+        $user = auth()->user();
+        if (!$user) {
+            return collect();
         }
 
-        // 4. Jika tidak, kembalikan data flat (untuk urlMenu)
-        return $allMenusCollection;
+        // Check if user is SuperAdmin or Dev role (bypass permission check if role has super privileges)
+        $isDev = false;
+        if (method_exists($user, 'hasRole')) {
+            $isDev = $user->hasRole('dev') || $user->hasRole('admin') || $user->hasRole('super-admin');
+        }
+
+        // Get user permissions
+        $userPermissionNames = [];
+        if (method_exists($user, 'getAllPermissions')) {
+            $userPermissionNames = $user->getAllPermissions()->pluck('name')->toArray();
+        }
+
+        // Get active menus with their permissions
+        $menus = Menu::with('permissions')
+            ->where('is_active', true)
+            ->orderBy('orders')
+            ->get();
+
+        // Filter menus based on user permission / role
+        $filteredMenus = $menus->filter(function ($menu) use ($isDev, $userPermissionNames) {
+            // SuperAdmin/dev gets all active menus
+            if ($isDev) {
+                return true;
+            }
+
+            // If menu has no associated permissions, allow display by default
+            if ($menu->permissions->isEmpty()) {
+                return true;
+            }
+
+            // Check if user has any permission associated with this menu (e.g. "read dashboard", "menu dashboard", etc.)
+            foreach ($menu->permissions as $perm) {
+                if (in_array($perm->name, $userPermissionNames)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        // If requested grouped (for Sidebar)
+        if ($grouped) {
+            return $filteredMenus->groupBy('category');
+        }
+
+        return $filteredMenus;
     }
 }
 
 if (!function_exists('urlMenu')) {
     function urlMenu()
     {
-        // Cache hasil akhir array URL agar tidak perlu pluck() di setiap request
-        return Cache::rememberForever('menus_url_list', function () {
-            return menus(false)->whereNotNull('url')->pluck('url')->toArray();
-        });
+        return menus(false)->whereNotNull('url')->pluck('url')->toArray();
     }
 }
