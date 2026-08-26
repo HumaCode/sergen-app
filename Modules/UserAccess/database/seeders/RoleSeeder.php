@@ -56,8 +56,9 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $roleData) {
+            // Menggunakan slug sebagai identifier unik (agar konsisten super_admin, admin, operator, viewer)
             Role::firstOrCreate(
-                ['name' => $roleData['name'], 'guard_name' => $roleData['guard_name']],
+                ['slug' => $roleData['slug'], 'guard_name' => $roleData['guard_name']],
                 $roleData
             );
         }
