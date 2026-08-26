@@ -39,6 +39,12 @@
             "Modules\\UserAccess\\": "Modules/UserAccess/app/",
             "Modules\\UserAccess\\Database\\Seeders\\": "Modules/UserAccess/database/seeders/",
             "Modules\\UserAccess\\Database\\Factories\\": "Modules/UserAccess/database/factories/",
+            "Modules\\Certificate\\": "Modules/Certificate/app/",
+            "Modules\\Certificate\\Database\\Seeders\\": "Modules/Certificate/database/seeders/",
+            "Modules\\Certificate\\Database\\Factories\\": "Modules/Certificate/database/factories/",
+            "Modules\\Participant\\": "Modules/Participant/app/",
+            "Modules\\Participant\\Database\\Seeders\\": "Modules/Participant/database/seeders/",
+            "Modules\\Participant\\Database\\Factories\\": "Modules/Participant/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },

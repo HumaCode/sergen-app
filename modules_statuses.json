@@ -1,3 +1,5 @@
 {
-    "UserAccess": true
+    "UserAccess": true,
+    "Certificate": true,
+    "Participant": true
 }

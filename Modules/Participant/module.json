@@ -1,0 +1,11 @@
+{
+    "name": "Participant",
+    "alias": "participant",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Participant\\Providers\\ParticipantServiceProvider"
+    ],
+    "files": []
+}
