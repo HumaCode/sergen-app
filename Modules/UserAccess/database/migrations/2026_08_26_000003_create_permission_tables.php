@@ -120,6 +120,20 @@ return new class extends Migration
             $table->primary([$pivotPermission, $pivotRole], 'role_has_permissions_permission_id_role_id_primary');
         });
 
+        Schema::create('menu_has_permissions', function (Blueprint $table) use ($tableNames, $pivotPermission) {
+            $table->foreignUlid($pivotPermission)
+                ->references('id')
+                ->on($tableNames['permissions'])
+                ->onDelete('cascade');
+
+            $table->foreignUlid('menu_id')
+                ->references('id')
+                ->on('menus')
+                ->onDelete('cascade');
+
+            $table->primary([$pivotPermission, 'menu_id'], 'menu_has_permissions_permission_id_menu_id_primary');
+        });
+
         app('cache')
             ->store(config('permission.store') != 'default' ? config('permission.store') : null)
             ->forget(config('permission.cache.key'));

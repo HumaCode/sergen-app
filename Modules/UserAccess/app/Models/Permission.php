@@ -12,14 +12,10 @@ class Permission extends SpatiePermission
     use HasUlids;
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Get the menus associated with the permission.
      */
-    protected function casts(): array
+    public function menus()
     {
-        return [
-            'is_active' => 'boolean',
-        ];
+        return $this->belongsToMany(Menu::class, 'menu_has_permissions', 'permission_id', 'menu_id');
     }
 }

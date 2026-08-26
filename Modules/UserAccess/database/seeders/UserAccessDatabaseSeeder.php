@@ -13,6 +13,8 @@ class UserAccessDatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            MenuSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

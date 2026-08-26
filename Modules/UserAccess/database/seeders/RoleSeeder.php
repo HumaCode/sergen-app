@@ -15,7 +15,7 @@ class RoleSeeder extends Seeder
         $roles = [
             [
                 'name' => 'Developer',
-                'slug' => 'developer',
+                'slug' => 'dev',
                 'type_role' => 'system',
                 'color' => '#dc3545', // Danger Red
                 'priority' => 1,

@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Traits;
 
 use Modules\UserAccess\Models\Menu;
@@ -21,7 +23,12 @@ trait HasMenuPermission
             $permission->menus()->syncWithoutDetaching([$menu->id]);
 
             if ($roles) {
-                $permission->assignRole($roles);
+                foreach ($roles as $roleItem) {
+                    $roleModel = \Modules\UserAccess\Models\Role::where('slug', $roleItem)->orWhere('name', $roleItem)->first();
+                    if ($roleModel && ! $permission->hasRole($roleModel)) {
+                        $permission->assignRole($roleModel);
+                    }
+                }
             }
         }
     }
