@@ -50,11 +50,11 @@ export function AddParticipantModal({ show, onClose }: AddParticipantModalProps)
 
                         <div>
                             <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink)', marginBottom: '6px', display: 'block' }}>
-                                Instansi / Perusahaan
+                                Organisasi / Perusahaan
                             </label>
                             <input
                                 type="text"
-                                placeholder="Masukkan nama instansi"
+                                placeholder="Masukkan nama organisasi / perusahaan"
                                 style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', outline: 'none', fontFamily: 'Poppins, sans-serif', fontSize: '13px' }}
                             />
                         </div>

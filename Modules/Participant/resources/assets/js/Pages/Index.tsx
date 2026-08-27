@@ -245,8 +245,7 @@ export default function Index({ participants, stats, filters }: IndexProps) {
                                 />
                             </th>
                             <th>Peserta</th>
-                            <th>NIK</th>
-                            <th>Instansi / Jabatan</th>
+                            <th>Organisasi / Jabatan</th>
                             <th>Terdaftar</th>
                             <th>Status</th>
                             <th></th>
@@ -255,7 +254,7 @@ export default function Index({ participants, stats, filters }: IndexProps) {
                     <tbody>
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: 'var(--ink-faint)' }}>
+                                <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: 'var(--ink-faint)' }}>
                                     <i className="bi bi-inbox" style={{ fontSize: 28, display: 'block', marginBottom: 8 }}></i>
                                     Tidak ada data peserta ditemukan.
                                 </td>
@@ -281,12 +280,16 @@ export default function Index({ participants, stats, filters }: IndexProps) {
                                             </div>
                                             <div className="pn-txt">
                                                 <div className="pnn">{item.name}</div>
-                                                <div className="pne">{item.email ?? '—'}</div>
+                                                <div className="pne" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                                    <span>{item.email ?? '—'}</span>
+                                                    {item.nik && (
+                                                        <span style={{ opacity: 0.75, fontSize: '11px', background: 'rgba(0,0,0,0.04)', padding: '1px 6px', borderRadius: '4px' }}>
+                                                            NIK: {item.nik}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span className="no-cert">{item.nik ?? '—'}</span>
                                     </td>
                                     <td>
                                         <div className="pn-txt">
