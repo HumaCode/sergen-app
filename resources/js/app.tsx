@@ -15,22 +15,22 @@ createInertiaApp({
             '../../Modules/*/resources/assets/js/Pages/**/*.tsx',
         ]);
 
-        const pagePath = `./Pages/${name}.tsx`;
-        if (pages[pagePath]) {
-            return resolvePageComponent(pagePath, pages);
-        }
-
-        // Search in Modules
+        // Search in Modules if name contains '::'
         const moduleMatch = name.split('::');
         if (moduleMatch.length === 2) {
             const [moduleName, pageName] = moduleMatch;
-            const modulePath = `../../Modules/${moduleName}/resources/assets/js/Pages/${pageName}.tsx`;
-            if (pages[modulePath]) {
-                return resolvePageComponent(modulePath, pages);
+            const targetSuffix = `/Modules/${moduleName}/resources/assets/js/Pages/${pageName}.tsx`.toLowerCase();
+            
+            const matchedKey = Object.keys(pages).find((key) =>
+                key.replace(/\\/g, '/').toLowerCase().endsWith(targetSuffix)
+            );
+
+            if (matchedKey) {
+                return resolvePageComponent(matchedKey, pages);
             }
         }
 
-        return resolvePageComponent(pagePath, pages);
+        return resolvePageComponent(`./Pages/${name}.tsx`, pages);
     },
     setup({ el, App, props }) {
         const root = createRoot(el);

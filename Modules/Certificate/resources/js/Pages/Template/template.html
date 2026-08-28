@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template Sertifikat — SerGen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+  :root{
+    --teal:#2A9D8F;
+    --teal-deep:#1E7268;
+    --teal-soft:#E3F3F1;
+    --coral:#FF8C7A;
+    --coral-soft:#FFEDE9;
+    --sun:#FFC978;
+    --sun-soft:#FFF6E6;
+    --sky:#EEF6F5;
+    --cream:#FBF9F4;
+    --ink:#1F2A2E;
+    --ink-soft:#66787B;
+    --ink-faint:#9AACAA;
+    --line:#E7EDEC;
+    --sidebar-w:264px;
+    --sidebar-w-collapsed:76px;
+    --topbar-h:66px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(42,157,143,0.07), transparent 40%),
+      radial-gradient(circle at 90% 92%, rgba(255,140,122,0.06), transparent 40%),
+      var(--cream);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  .ambient{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+  .ambient .blob{ position:absolute; border-radius:50%; opacity:0.35; filter:blur(6px); }
+  .ambient .blob.a1{
+    width:320px;height:320px; top:-100px; right:6%;
+    background:radial-gradient(circle at 30% 30%, rgba(42,157,143,0.28), transparent 70%);
+    animation: driftA 24s ease-in-out infinite;
+  }
+  .ambient .blob.a2{
+    width:260px;height:260px; bottom:-80px; left:30%;
+    background:radial-gradient(circle at 40% 40%, rgba(255,201,120,0.25), transparent 70%);
+    animation: driftB 20s ease-in-out infinite;
+  }
+  @keyframes driftA{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,30px)} }
+  @keyframes driftB{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(25px,-20px)} }
+  @media (prefers-reduced-motion: reduce){ .ambient .blob{ animation:none !important; } }
+
+  /* ================= Sidebar ================= */
+  .sidebar{
+    position:fixed; top:0; left:0; bottom:0;
+    width:var(--sidebar-w);
+    background:linear-gradient(185deg, var(--teal) 0%, var(--teal-deep) 100%);
+    color:#fff;
+    z-index:40;
+    display:flex; flex-direction:column;
+    transition: width .25s ease, transform .25s ease;
+    overflow:hidden;
+  }
+  .sidebar.collapsed{ width:var(--sidebar-w-collapsed); }
+  .side-brand{
+    height:var(--topbar-h);
+    display:flex; align-items:center; gap:10px;
+    padding:0 20px;
+    flex-shrink:0;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .side-brand .mark{
+    width:34px;height:34px; border-radius:10px;
+    background:rgba(255,255,255,0.16);
+    display:flex; align-items:center; justify-content:center;
+    font-size:17px; flex-shrink:0;
+  }
+  .side-brand span.name{ font-weight:700; font-size:16.5px; white-space:nowrap; }
+  .sidebar.collapsed .side-brand span.name{ display:none; }
+  .side-scroll{ flex:1; overflow-y:auto; padding:18px 12px 18px; }
+  .side-scroll::-webkit-scrollbar{ width:5px; }
+  .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.18); border-radius:10px; }
+  .nav-category{
+    font-size:11px; font-weight:600; letter-spacing:0.8px;
+    color:rgba(255,255,255,0.5);
+    text-transform:uppercase;
+    padding:14px 12px 8px;
+    white-space:nowrap;
+  }
+  .sidebar.collapsed .nav-category{ text-align:center; padding:14px 0 8px; }
+  .sidebar.collapsed .nav-category span{ display:none; }
+  .sidebar.collapsed .nav-category::after{ content:"···"; opacity:0.4; }
+  .nav-item{
+    display:flex; align-items:center; gap:12px;
+    padding:10.5px 12px; border-radius:12px;
+    color:rgba(255,255,255,0.82); text-decoration:none;
+    font-size:13.5px; font-weight:400; margin-bottom:3px;
+    position:relative; transition: background .18s ease, color .18s ease;
+    white-space:nowrap;
+  }
+  .nav-item i.ic{ font-size:17px; width:20px; text-align:center; flex-shrink:0; }
+  .nav-item span.label{ overflow:hidden; text-overflow:ellipsis; }
+  .sidebar.collapsed .nav-item span.label{ display:none; }
+  .sidebar.collapsed .nav-item{ justify-content:center; padding:10.5px 0; }
+  .nav-item:hover{ background:rgba(255,255,255,0.10); color:#fff; }
+  .nav-item.active{ background:rgba(255,255,255,0.16); color:#fff; font-weight:500; }
+  .nav-item.active::before{
+    content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px;
+    background:var(--sun); border-radius:0 4px 4px 0;
+  }
+  .sidebar.collapsed .nav-item.active::before{ display:none; }
+  .nav-item .badge-count{
+    margin-left:auto; background:var(--coral); color:#fff;
+    font-size:10.5px; font-weight:600; padding:1.5px 7px; border-radius:20px;
+  }
+  .sidebar.collapsed .nav-item .badge-count{ display:none; }
+  .side-foot{
+    padding:14px 20px 18px; font-size:11px; color:rgba(255,255,255,0.45);
+    border-top:1px solid rgba(255,255,255,0.1); white-space:nowrap;
+  }
+  .sidebar.collapsed .side-foot{ text-align:center; padding:14px 4px 18px; }
+  .sidebar.collapsed .side-foot span{ display:none; }
+
+  /* ================= Main shell ================= */
+  .main{ margin-left:var(--sidebar-w); transition: margin-left .25s ease; position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; }
+  .main.collapsed{ margin-left:var(--sidebar-w-collapsed); }
+
+  /* ================= Topbar ================= */
+  .topbar{
+    height:var(--topbar-h);
+    background:rgba(255,255,255,0.75);
+    backdrop-filter: blur(14px);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 22px; position:sticky; top:0; z-index:30; gap:16px;
+  }
+  .topbar-left{ display:flex; align-items:center; gap:14px; flex:1; min-width:0; }
+  .btn-icon{
+    width:38px;height:38px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; border:none; cursor:pointer;
+    color:var(--ink-soft); font-size:17px;
+    transition: background .15s ease, color .15s ease; flex-shrink:0;
+  }
+  .btn-icon:hover{ background:var(--teal-soft); color:var(--teal-deep); }
+  .search-box{
+    display:flex; align-items:center; gap:8px; background:var(--sky);
+    border:1px solid var(--line); border-radius:12px; padding:8px 14px;
+    max-width:340px; width:100%;
+  }
+  .search-box i{ color:var(--ink-faint); font-size:15px; }
+  .search-box input{ border:none; background:transparent; outline:none; font-family:'Poppins',sans-serif; font-size:13px; color:var(--ink); width:100%; }
+  .search-box input::placeholder{ color:var(--ink-faint); }
+  @media (max-width:767px){ .search-box{ display:none; } }
+  .topbar-right{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .notif-dot{ position:relative; }
+  .notif-dot::after{ content:""; position:absolute; top:7px; right:8px; width:7px;height:7px; border-radius:50%; background:var(--coral); border:1.5px solid #fff; }
+  .user-trigger{ display:flex; align-items:center; gap:10px; padding:6px 12px 6px 6px; border-radius:14px; cursor:pointer; border:1px solid transparent; transition: background .15s ease, border-color .15s ease; }
+  .user-trigger:hover{ background:var(--sky); border-color:var(--line); }
+  .avatar{ width:36px;height:36px; border-radius:11px; background:linear-gradient(135deg, var(--teal), var(--teal-deep)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; flex-shrink:0; }
+  .user-meta{ line-height:1.3; }
+  .user-meta .uname{ font-size:13px; font-weight:600; color:var(--ink); }
+  .user-meta .urole{ font-size:11px; color:var(--ink-faint); }
+  @media (max-width:575px){ .user-meta{ display:none; } }
+  .user-trigger .chev{ font-size:13px; color:var(--ink-faint); transition:transform .2s ease; }
+  .user-trigger.open .chev{ transform:rotate(180deg); }
+  .dropdown{
+    position:absolute; top:calc(100% + 10px); right:0; width:260px;
+    background:#fff; border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 20px 45px -14px rgba(31,42,46,0.22); padding:8px;
+    opacity:0; visibility:hidden; transform:translateY(-8px);
+    transition: opacity .18s ease, transform .18s ease, visibility .18s ease; z-index:50;
+  }
+  .dropdown.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  .dd-head{ display:flex; align-items:center; gap:12px; padding:12px 10px; border-bottom:1px solid var(--line); margin-bottom:6px; }
+  .dd-head .avatar{ width:42px;height:42px; font-size:15px; }
+  .dd-head .uname{ font-size:13.5px; font-weight:600; color:var(--ink); }
+  .dd-head .uemail{ font-size:11.5px; color:var(--ink-faint); margin-top:1px; }
+  .dd-role-badge{ display:inline-block; margin-top:5px; font-size:10px; font-weight:600; color:var(--teal-deep); background:var(--teal-soft); padding:2px 8px; border-radius:20px; }
+  .dd-item{ display:flex; align-items:center; gap:11px; padding:9.5px 10px; border-radius:10px; font-size:13px; color:var(--ink); text-decoration:none; transition: background .15s ease; }
+  .dd-item i{ font-size:15px; color:var(--ink-soft); width:18px; }
+  .dd-item:hover{ background:var(--sky); }
+  .dd-item.danger{ color:#E4573D; }
+  .dd-item.danger i{ color:#E4573D; }
+  .dd-item.danger:hover{ background:var(--coral-soft); }
+  .dd-sep{ height:1px; background:var(--line); margin:6px 2px; }
+
+  /* ================= Content ================= */
+  .content{ flex:1; padding:26px; }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
+  .page-head h1{ font-size:22px; font-weight:600; color:var(--ink); }
+  .page-head p{ font-size:13px; color:var(--ink-soft); font-weight:300; margin-top:3px; }
+  .btn-primary{
+    display:flex; align-items:center; gap:8px;
+    background:linear-gradient(135deg, var(--teal), var(--teal-deep));
+    color:#fff; border:none; padding:11px 18px; border-radius:12px;
+    font-family:'Poppins',sans-serif; font-weight:500; font-size:13.5px;
+    cursor:pointer; box-shadow:0 10px 22px -8px rgba(30,114,104,0.4);
+    transition: transform .15s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); }
+
+  /* Toolbar: filter chips + view toggle */
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    flex-wrap:wrap; margin-bottom:20px;
+  }
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{
+    padding:7.5px 15px; border-radius:20px; font-size:12.5px; font-weight:500;
+    background:#fff; border:1px solid var(--line); color:var(--ink-soft);
+    cursor:pointer; transition: all .15s ease; white-space:nowrap;
+  }
+  .chip:hover{ border-color:var(--teal); color:var(--teal-deep); }
+  .chip.active{ background:var(--teal); border-color:var(--teal); color:#fff; }
+
+  .view-toggle{ display:flex; gap:4px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:4px; }
+  .view-toggle button{
+    width:32px;height:32px; border:none; background:transparent; border-radius:8px;
+    color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition: all .15s ease; font-size:14px;
+  }
+  .view-toggle button.active{ background:var(--teal-soft); color:var(--teal-deep); }
+
+  /* Template grid */
+  .tpl-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
+  }
+  @media (max-width:1299px){ .tpl-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:991px){ .tpl-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:575px){ .tpl-grid{ grid-template-columns:1fr; } }
+
+  .tpl-card{
+    background:rgba(255,255,255,0.9);
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+    position:relative;
+  }
+  .tpl-card:hover{ transform:translateY(-5px); box-shadow:0 20px 38px -18px rgba(31,42,46,0.22); }
+
+  .tpl-thumb-wrap{
+    position:relative;
+    aspect-ratio:4/2.85;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .tpl-thumb-wrap.pal-1{ background:linear-gradient(135deg,#DCEFEC,#F3FAF9); }
+  .tpl-thumb-wrap.pal-2{ background:linear-gradient(135deg,#FFF1E4,#FFE3D8); }
+  .tpl-thumb-wrap.pal-3{ background:linear-gradient(135deg,#E6EEFB,#EAF6F4); }
+  .tpl-thumb-wrap.pal-4{ background:linear-gradient(135deg,#FDEFE0,#F4E4EE); }
+
+  .tpl-mock{
+    width:82%; height:76%;
+    background:#fff;
+    border-radius:8px;
+    box-shadow:0 14px 26px -12px rgba(31,42,46,0.25);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; position:relative;
+  }
+  .tpl-mock .ribbon-icon{ font-size:24px; }
+  .tpl-mock .ln{ height:5px; border-radius:4px; background:#E4EAE9; }
+  .tpl-mock .ln.w60{ width:60%; }
+  .tpl-mock .ln.w40{ width:40%; }
+  .tpl-mock .ln.title{ height:8px; width:70%; background:#C9D6D4; }
+
+  .tpl-status{
+    position:absolute; top:12px; left:12px;
+    font-size:10.5px; font-weight:600; padding:4px 10px; border-radius:20px;
+    display:flex; align-items:center; gap:5px;
+  }
+  .tpl-status.active{ background:rgba(255,255,255,0.9); color:var(--teal-deep); }
+  .tpl-status.inactive{ background:rgba(255,255,255,0.9); color:var(--ink-faint); }
+  .tpl-status .dotpoint{ width:6px;height:6px; border-radius:50%; background:currentColor; }
+
+  .tpl-menu-btn{
+    position:absolute; top:10px; right:10px;
+    width:30px;height:30px; border-radius:9px;
+    background:rgba(255,255,255,0.9); border:none;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); cursor:pointer; font-size:14px;
+    opacity:0; transition:opacity .18s ease;
+  }
+  .tpl-card:hover .tpl-menu-btn{ opacity:1; }
+
+  .tpl-body{ padding:16px; }
+  .tpl-body .tname{ font-size:14px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+  .tpl-body .tmeta{ font-size:11.5px; color:var(--ink-faint); display:flex; align-items:center; gap:6px; }
+  .tpl-body .tmeta span.dividerdot{ width:3px;height:3px; border-radius:50%; background:var(--ink-faint); }
+
+  .tpl-footer{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; border-top:1px solid var(--line);
+  }
+  .tpl-footer .used{ font-size:11.5px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; }
+  .tpl-footer .used i{ color:var(--teal); }
+  .tpl-footer .edit-link{
+    font-size:12px; font-weight:600; color:var(--teal-deep); text-decoration:none;
+    display:flex; align-items:center; gap:4px;
+  }
+  .tpl-footer .edit-link:hover{ text-decoration:underline; }
+
+  /* Add-new card */
+  .tpl-add{
+    border:2px dashed #C9DAD8;
+    border-radius:18px;
+    background:rgba(255,255,255,0.5);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; padding:30px 20px;
+    min-height:100%;
+    cursor:pointer;
+    transition: all .2s ease;
+    color:var(--ink-soft);
+  }
+  .tpl-add:hover{ border-color:var(--teal); background:var(--teal-soft); color:var(--teal-deep); }
+  .tpl-add .plus-circle{
+    width:46px;height:46px; border-radius:50%;
+    background:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:20px; box-shadow:0 8px 18px -8px rgba(31,42,46,0.15);
+  }
+  .tpl-add .add-title{ font-size:13.5px; font-weight:600; }
+  .tpl-add .add-sub{ font-size:11.5px; text-align:center; max-width:180px; }
+
+  /* Footer */
+  .footer{
+    padding:18px 26px; border-top:1px solid var(--line);
+    font-size:12px; color:var(--ink-faint);
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+  .footer a{ color:var(--ink-soft); text-decoration:none; margin-left:14px; }
+  .footer a:hover{ color:var(--teal-deep); }
+
+  /* ================= Mobile sidebar ================= */
+  @media (max-width:991px){
+    .sidebar{ transform:translateX(-100%); width:264px; }
+    .sidebar.mobile-open{ transform:translateX(0); }
+    .main, .main.collapsed{ margin-left:0; }
+    .overlay{ position:fixed; inset:0; background:rgba(15,26,25,0.4); z-index:35; opacity:0; visibility:hidden; transition: opacity .2s ease; }
+    .overlay.show{ opacity:1; visibility:visible; }
+  }
+
+  /* ================= Upload modal ================= */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(15,26,25,0.45);
+    display:flex; align-items:center; justify-content:center;
+    z-index:60; opacity:0; visibility:hidden; transition: opacity .2s ease, visibility .2s ease;
+    padding:20px;
+  }
+  .modal-backdrop.show{ opacity:1; visibility:visible; }
+  .modal-box{
+    background:#fff; border-radius:22px; width:100%; max-width:460px;
+    padding:26px; transform:translateY(14px) scale(0.97);
+    transition: transform .22s ease; box-shadow:0 30px 60px -20px rgba(31,42,46,0.3);
+  }
+  .modal-backdrop.show .modal-box{ transform:translateY(0) scale(1); }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .modal-head h3{ font-size:16.5px; font-weight:600; color:var(--ink); }
+  .modal-close{ width:32px;height:32px; border-radius:9px; border:none; background:var(--sky); color:var(--ink-soft); cursor:pointer; font-size:14px; }
+
+  .drop-zone{
+    border:2px dashed #C9DAD8; border-radius:16px; padding:30px 16px;
+    text-align:center; color:var(--ink-soft); cursor:pointer;
+    transition: all .2s ease; margin-bottom:16px;
+  }
+  .drop-zone:hover{ border-color:var(--teal); background:var(--teal-soft); }
+  .drop-zone i{ font-size:26px; color:var(--teal); margin-bottom:8px; display:block; }
+  .drop-zone .dz-title{ font-size:13px; font-weight:500; color:var(--ink); }
+  .drop-zone .dz-sub{ font-size:11.5px; margin-top:3px; }
+
+  .m-field{ margin-bottom:14px; }
+  .m-field label{ display:block; font-size:12.5px; font-weight:500; color:var(--ink); margin-bottom:6px; }
+  .m-field input, .m-field select{
+    width:100%; font-family:'Poppins',sans-serif; font-size:13px;
+    padding:11px 13px; border-radius:11px; border:1.5px solid var(--line);
+    outline:none; color:var(--ink); background:#fff;
+  }
+  .m-field input:focus, .m-field select:focus{ border-color:var(--teal); box-shadow:0 0 0 4px rgba(42,157,143,0.12); }
+
+  .modal-actions{ display:flex; gap:10px; margin-top:20px; }
+  .btn-ghost{
+    flex:1; padding:11px; border-radius:12px; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink-soft); font-family:'Poppins',sans-serif;
+    font-weight:500; font-size:13px; cursor:pointer;
+  }
+  .modal-actions .btn-primary{ flex:1; justify-content:center; }
+</style>
+</head>
+<body>
+
+  <div class="ambient">
+    <div class="blob a1"></div>
+    <div class="blob a2"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand">
+      <div class="mark"><i class="bi bi-patch-check-fill"></i></div>
+      <span class="name">SerGen</span>
+    </div>
+
+    <div class="side-scroll">
+      <div class="nav-category"><span>Utama</span></div>
+      <a class="nav-item" href="#"><i class="bi bi-grid-1x2-fill ic"></i><span class="label">Dashboard</span></a>
+
+      <div class="nav-category"><span>Sertifikat</span></div>
+      <a class="nav-item active" href="#"><i class="bi bi-file-earmark-image ic"></i><span class="label">Template</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-magic ic"></i><span class="label">Buat Sertifikat</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-layers ic"></i><span class="label">Batch Generate</span><span class="badge-count">3</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-qr-code-scan ic"></i><span class="label">Verifikasi</span></a>
+
+      <div class="nav-category"><span>Data</span></div>
+      <a class="nav-item" href="#"><i class="bi bi-people ic"></i><span class="label">Peserta</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-file-earmark-spreadsheet ic"></i><span class="label">Import Excel</span></a>
+
+      <div class="nav-category"><span>Pengaturan</span></div>
+      <a class="nav-item" href="#"><i class="bi bi-person-badge ic"></i><span class="label">Pengguna &amp; Role</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-gear ic"></i><span class="label">Preferensi Akun</span></a>
+    </div>
+
+    <div class="side-foot"><span>SerGen v1.0 · Kominfo Kota Pekalongan</span></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main" id="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon" id="sidebarToggle"><i class="bi bi-list"></i></button>
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Cari template, batch, atau peserta...">
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button class="btn-icon notif-dot"><i class="bi bi-bell"></i></button>
+
+        <div style="position:relative;">
+          <div class="user-trigger" id="userTrigger">
+            <div class="avatar">FL</div>
+            <div class="user-meta">
+              <div class="uname">fLINK</div>
+              <div class="urole">Administrator</div>
+            </div>
+            <i class="bi bi-chevron-down chev"></i>
+          </div>
+
+          <div class="dropdown" id="userDropdown">
+            <div class="dd-head">
+              <div class="avatar">FL</div>
+              <div>
+                <div class="uname">fLINK</div>
+                <div class="uemail">flink@pekalongankota.go.id</div>
+                <span class="dd-role-badge">Administrator</span>
+              </div>
+            </div>
+            <a class="dd-item" href="#"><i class="bi bi-person-circle"></i> Profil Saya</a>
+            <a class="dd-item" href="#"><i class="bi bi-gear"></i> Pengaturan Akun</a>
+            <a class="dd-item" href="#"><i class="bi bi-life-preserver"></i> Bantuan</a>
+            <div class="dd-sep"></div>
+            <a class="dd-item danger" href="#"><i class="bi bi-box-arrow-right"></i> Keluar</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <h1>Template Sertifikat</h1>
+          <p>Kelola desain dari Canva dan atur posisi field dinamis untuk tiap template.</p>
+        </div>
+        <button class="btn-primary" id="openUpload"><i class="bi bi-upload"></i> Upload Template Baru</button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="chip-row">
+          <div class="chip active">Semua (18)</div>
+          <div class="chip">Aktif (15)</div>
+          <div class="chip">Nonaktif (3)</div>
+          <div class="chip">Landscape</div>
+          <div class="chip">Portrait</div>
+        </div>
+        <div class="view-toggle">
+          <button class="active"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+          <button><i class="bi bi-list-ul"></i></button>
+        </div>
+      </div>
+
+      <!-- Template grid -->
+      <div class="tpl-grid">
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-1">
+            <span class="tpl-status active"><span class="dotpoint"></span> Aktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-award-fill ribbon-icon" style="color:#2A9D8F;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Formal Biru</div>
+            <div class="tmeta"><span>Landscape</span><span class="dividerdot"></span><span>2000×1414 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 6 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-2">
+            <span class="tpl-status active"><span class="dotpoint"></span> Aktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-stars ribbon-icon" style="color:#FF8C7A;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Sun Gradient</div>
+            <div class="tmeta"><span>Landscape</span><span class="dividerdot"></span><span>2000×1414 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 3 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-3">
+            <span class="tpl-status active"><span class="dotpoint"></span> Aktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-patch-check-fill ribbon-icon" style="color:#4C6EF5;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Minimal Teal</div>
+            <div class="tmeta"><span>Landscape</span><span class="dividerdot"></span><span>1754×1240 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 4 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-4">
+            <span class="tpl-status inactive"><span class="dotpoint"></span> Nonaktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-mortarboard-fill ribbon-icon" style="color:#C98A2E;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Wisuda Klasik</div>
+            <div class="tmeta"><span>Portrait</span><span class="dividerdot"></span><span>1414×2000 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 1 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-1">
+            <span class="tpl-status active"><span class="dotpoint"></span> Aktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-shield-check ribbon-icon" style="color:#2A9D8F;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Sertifikasi Keamanan</div>
+            <div class="tmeta"><span>Landscape</span><span class="dividerdot"></span><span>2000×1414 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 2 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-2">
+            <span class="tpl-status active"><span class="dotpoint"></span> Aktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-briefcase-fill ribbon-icon" style="color:#FF8C7A;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Workshop UMKM</div>
+            <div class="tmeta"><span>Landscape</span><span class="dividerdot"></span><span>2000×1414 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 5 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-thumb-wrap pal-3">
+            <span class="tpl-status active"><span class="dotpoint"></span> Aktif</span>
+            <button class="tpl-menu-btn"><i class="bi bi-three-dots"></i></button>
+            <div class="tpl-mock">
+              <i class="bi bi-globe-asia-australia ribbon-icon" style="color:#4C6EF5;"></i>
+              <div class="ln title"></div>
+              <div class="ln w60"></div>
+              <div class="ln w40"></div>
+            </div>
+          </div>
+          <div class="tpl-body">
+            <div class="tname">Webinar SPBE</div>
+            <div class="tmeta"><span>Landscape</span><span class="dividerdot"></span><span>1920×1357 px</span></div>
+          </div>
+          <div class="tpl-footer">
+            <div class="used"><i class="bi bi-layers"></i> 3 batch</div>
+            <a class="edit-link" href="#">Atur field <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Add new template card -->
+        <div class="tpl-add" id="openUploadCard">
+          <div class="plus-circle"><i class="bi bi-plus-lg"></i></div>
+          <div class="add-title">Tambah Template Baru</div>
+          <div class="add-sub">Unggah desain dari Canva (PNG/JPG/PDF)</div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>© 2026 SerGen — Dinas Kominfo Kota Pekalongan</div>
+      <div><a href="#">Bantuan</a><a href="#">Dokumentasi</a><a href="#">Privasi</a></div>
+    </footer>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>Upload Template Baru</h3>
+        <button class="modal-close" id="closeModal"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="drop-zone">
+        <i class="bi bi-cloud-arrow-up"></i>
+        <div class="dz-title">Klik atau seret file ke sini</div>
+        <div class="dz-sub">PNG, JPG, atau PDF · Maks 10MB</div>
+      </div>
+
+      <div class="m-field">
+        <label>Nama Template</label>
+        <input type="text" placeholder="Contoh: Formal Biru">
+      </div>
+
+      <div class="m-field">
+        <label>Orientasi</label>
+        <select>
+          <option>Landscape</option>
+          <option>Portrait</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost" id="cancelModal">Batal</button>
+        <button class="btn-primary"><i class="bi bi-arrow-right"></i> Lanjut Atur Field</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar collapse (desktop) / off-canvas (mobile)
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+    const overlay = document.getElementById('overlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    function isMobile(){ return window.innerWidth <= 991; }
+
+    toggleBtn.addEventListener('click', () => {
+      if(isMobile()){
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('show');
+      }else{
+        sidebar.classList.toggle('collapsed');
+        main.classList.toggle('collapsed');
+      }
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('show');
+    });
+
+    window.addEventListener('resize', () => {
+      if(!isMobile()){
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('show');
+      }
+    });
+
+    // User dropdown
+    const userTrigger = document.getElementById('userTrigger');
+    const userDropdown = document.getElementById('userDropdown');
+    userTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userTrigger.classList.toggle('open');
+      userDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+      if(!userDropdown.contains(e.target) && !userTrigger.contains(e.target)){
+        userDropdown.classList.remove('show');
+        userTrigger.classList.remove('open');
+      }
+    });
+
+    // Chip filter toggle
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+
+    // View toggle
+    document.querySelectorAll('.view-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Upload modal
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const openUpload = document.getElementById('openUpload');
+    const openUploadCard = document.getElementById('openUploadCard');
+    const closeModal = document.getElementById('closeModal');
+    const cancelModal = document.getElementById('cancelModal');
+
+    function showModal(){ modalBackdrop.classList.add('show'); }
+    function hideModal(){ modalBackdrop.classList.remove('show'); }
+
+    openUpload.addEventListener('click', showModal);
+    openUploadCard.addEventListener('click', showModal);
+    closeModal.addEventListener('click', hideModal);
+    cancelModal.addEventListener('click', hideModal);
+    modalBackdrop.addEventListener('click', (e) => { if(e.target === modalBackdrop) hideModal(); });
+  </script>
+
+</body>
+</html>

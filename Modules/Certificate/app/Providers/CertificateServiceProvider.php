@@ -3,7 +3,6 @@
 namespace Modules\Certificate\Providers;
 
 use Nwidart\Modules\Support\ModuleServiceProvider;
-use Illuminate\Console\Scheduling\Schedule;
 
 class CertificateServiceProvider extends ModuleServiceProvider
 {
@@ -18,13 +17,6 @@ class CertificateServiceProvider extends ModuleServiceProvider
     protected string $nameLower = 'certificate';
 
     /**
-     * Command classes to register.
-     *
-     * @var string[]
-     */
-    // protected array $commands = [];
-
-    /**
      * Provider classes to register.
      *
      * @var string[]
@@ -35,12 +27,20 @@ class CertificateServiceProvider extends ModuleServiceProvider
     ];
 
     /**
-     * Define module schedules.
-     * 
-     * @param $schedule
+     * Register services.
      */
-    // protected function configureSchedules(Schedule $schedule): void
-    // {
-    //     $schedule->command('inspire')->hourly();
-    // }
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->bind(
+            \Modules\Certificate\Repositories\Contracts\CertificateTemplateRepositoryInterface::class,
+            \Modules\Certificate\Repositories\Eloquent\CertificateTemplateRepository::class
+        );
+
+        $this->app->bind(
+            \Modules\Certificate\Services\Contracts\CertificateTemplateServiceInterface::class,
+            \Modules\Certificate\Services\CertificateTemplateService::class
+        );
+    }
 }

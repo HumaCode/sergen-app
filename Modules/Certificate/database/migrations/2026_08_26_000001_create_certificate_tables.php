@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('certificate_templates', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name');
-            $table->string('file_path'); // Path file desain (e.g., SVG/Canvas/Image)
             $table->json('placeholders')->nullable(); // Posisi koordinat text (Nama, NIK, Peran, dll)
             $table->string('orientation', 20)->default('landscape'); // landscape / portrait
             $table->boolean('is_active')->default(true);
