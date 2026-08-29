@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { ConfirmDeleteModal } from '@/Components/ConfirmDeleteModal';
 import { EmptyState } from '@/Components/EmptyState';
 import { Toast, ToastType } from '@/Components/Toast';
 import { Head, router } from '@inertiajs/react';
@@ -54,6 +55,8 @@ export default function Index({ templates, stats, filters }: IndexProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
+    const [deletingTemplate, setDeletingTemplate] = useState<TemplateItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [toastState, setToastState] = useState<{
         show: boolean;
@@ -93,16 +96,20 @@ export default function Index({ templates, stats, filters }: IndexProps) {
         navigate({ orientation, page: 1 });
     };
 
-    const handleDeleteTemplate = (tpl: TemplateItem) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus template "${tpl.name}"?`)) {
-            router.delete(`/certificates/templates/${tpl.id}`, {
-                preserveScroll: true,
-                preserveState: false,
-                onSuccess: () => {
-                    triggerToast(`Template "${tpl.name}" berhasil dihapus!`, 'danger');
-                },
-            });
-        }
+    const handleConfirmDelete = () => {
+        if (!deletingTemplate) return;
+        const target = deletingTemplate;
+        router.delete(`/certificates/templates/${target.id}`, {
+            onStart: () => setIsDeleting(true),
+            onFinish: () => {
+                setIsDeleting(false);
+                setDeletingTemplate(null);
+            },
+            onSuccess: () => {
+                router.visit(window.location.href, { preserveScroll: true, replace: true });
+                triggerToast(`Template "${target.name}" berhasil dihapus!`, 'danger');
+            },
+        });
     };
 
     const handleToggleStatus = (tpl: TemplateItem, onFinish?: () => void) => {
@@ -198,7 +205,7 @@ export default function Index({ templates, stats, filters }: IndexProps) {
                             key={tpl.id}
                             template={tpl}
                             onEdit={(item) => setEditingTemplate(item)}
-                            onDelete={handleDeleteTemplate}
+                            onDelete={(item) => setDeletingTemplate(item)}
                             onToggleStatus={handleToggleStatus}
                         />
                     ))}
@@ -224,6 +231,14 @@ export default function Index({ templates, stats, filters }: IndexProps) {
                     triggerToast(msg, 'success');
                     router.reload({ only: ['templates', 'stats'] });
                 }}
+            />
+
+            <ConfirmDeleteModal
+                show={!!deletingTemplate}
+                itemName={deletingTemplate?.name}
+                isLoading={isDeleting}
+                onClose={() => !isDeleting && setDeletingTemplate(null)}
+                onConfirm={handleConfirmDelete}
             />
         </AuthenticatedLayout>
     );
