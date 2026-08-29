@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TemplateItem } from './TemplateCard';
@@ -80,9 +80,13 @@ export function EditTemplateModal({ show, template, onClose, onSuccessNotificati
             forceFormData: true,
             onSuccess: () => {
                 handleClose();
+                router.visit(window.location.href, { preserveScroll: true, replace: true });
                 if (onSuccessNotification) {
                     onSuccessNotification(`Template "${updatedName}" berhasil diperbarui!`);
                 }
+            },
+            onError: (errs) => {
+                console.error('Update Template Errors:', errs);
             },
         });
     };
@@ -223,6 +227,12 @@ export function EditTemplateModal({ show, template, onClose, onSuccessNotificati
                             <i className="bi bi-arrow-repeat"></i> {data.file ? 'Ganti Berkas Lagi' : 'Ganti Berkas Desain'}
                         </button>
                     </div>
+
+                    {errors.file && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '6px', textAlign: 'center' }}>
+                            {errors.file}
+                        </div>
+                    )}
 
                     <div className="modal-grid-2col" style={{ marginTop: '16px' }}>
                         <div className="m-field-group">

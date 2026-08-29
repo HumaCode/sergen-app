@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -58,11 +58,16 @@ export function UploadTemplateModal({ show, onClose, onSuccessNotification }: Up
         e.preventDefault();
         const templateName = data.name;
         post('/certificates/templates', {
+            forceFormData: true,
             onSuccess: () => {
                 handleClose();
+                router.visit(window.location.href, { preserveScroll: true, replace: true });
                 if (onSuccessNotification) {
                     onSuccessNotification(`Template "${templateName}" berhasil disimpan!`);
                 }
+            },
+            onError: (errs) => {
+                console.error('Validation / Upload Errors:', errs);
             },
         });
     };
@@ -177,6 +182,11 @@ export function UploadTemplateModal({ show, onClose, onSuccessNotification }: Up
                                 Klik atau seret file desain ke sini
                             </div>
                             <div className="dz-sub" style={{ fontSize: '12px' }}>PNG, JPG, atau PDF · Ukuran Maksimal 10MB</div>
+                        </div>
+                    )}
+                    {errors.file && (
+                        <div style={{ color: 'red', fontSize: '12px', marginTop: '6px', textAlign: 'center' }}>
+                            {errors.file}
                         </div>
                     )}
 

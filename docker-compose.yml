@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  sergen-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sergen-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8087}:8000"
+      - "${VITE_PORT:-5178}:5178"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - CONTAINER_ROLE=app
+      - APP_ENV=${APP_ENV:-local}
+    networks:
+      - sergen-network
+    depends_on:
+      sergen-db:
+        condition: service_healthy
+      sergen-redis:
+        condition: service_healthy
+
+  sergen-db:
+    image: mysql:8.4
+    container_name: sergen-db
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_DB_PORT:-3312}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-Sergen@2026}'
+      MYSQL_DATABASE: '${DB_DATABASE:-db_sergen}'
+      MYSQL_USER: '${DB_USERNAME:-db_sergen}'
+      MYSQL_PASSWORD: '${DB_PASSWORD:-Sergen@2026}'
+    volumes:
+      - sergen-db-data:/var/lib/mysql
+    networks:
+      - sergen-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD:-Sergen@2026}"]
+      retries: 5
+      timeout: 5s
+      interval: 5s
+
+  sergen-redis:
+    image: redis:alpine
+    container_name: sergen-redis
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_REDIS_PORT:-6384}:6379"
+    volumes:
+      - sergen-redis-data:/data
+    networks:
+      - sergen-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 5
+      timeout: 5s
+      interval: 5s
+
+networks:
+  sergen-network:
+    driver: bridge
+
+volumes:
+  sergen-db-data:
+  sergen-redis-data:

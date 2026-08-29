@@ -96,6 +96,8 @@ export default function Index({ templates, stats, filters }: IndexProps) {
     const handleDeleteTemplate = (tpl: TemplateItem) => {
         if (confirm(`Apakah Anda yakin ingin menghapus template "${tpl.name}"?`)) {
             router.delete(`/certificates/templates/${tpl.id}`, {
+                preserveScroll: true,
+                preserveState: false,
                 onSuccess: () => {
                     triggerToast(`Template "${tpl.name}" berhasil dihapus!`, 'danger');
                 },
@@ -114,6 +116,8 @@ export default function Index({ templates, stats, filters }: IndexProps) {
                 is_active: newStatus,
             },
             {
+                preserveScroll: true,
+                preserveState: false,
                 onSuccess: () => {
                     triggerToast(
                         `Template "${tpl.name}" berhasil ${newStatus ? 'diaktifkan' : 'dinonaktifkan'}!`,
@@ -206,14 +210,20 @@ export default function Index({ templates, stats, filters }: IndexProps) {
             <UploadTemplateModal
                 show={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
-                onSuccessNotification={(msg) => triggerToast(msg, 'success')}
+                onSuccessNotification={(msg) => {
+                    triggerToast(msg, 'success');
+                    router.reload({ only: ['templates', 'stats'] });
+                }}
             />
 
             <EditTemplateModal
                 show={!!editingTemplate}
                 template={editingTemplate}
                 onClose={() => setEditingTemplate(null)}
-                onSuccessNotification={(msg) => triggerToast(msg, 'success')}
+                onSuccessNotification={(msg) => {
+                    triggerToast(msg, 'success');
+                    router.reload({ only: ['templates', 'stats'] });
+                }}
             />
         </AuthenticatedLayout>
     );

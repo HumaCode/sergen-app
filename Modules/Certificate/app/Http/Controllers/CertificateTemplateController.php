@@ -65,7 +65,7 @@ class CertificateTemplateController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Template berhasil dibuat');
+        return redirect()->route('certificate.templates.index')->with('success', 'Template berhasil dibuat');
     }
 
     /**
@@ -83,7 +83,7 @@ class CertificateTemplateController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Template berhasil diperbarui');
+        return redirect()->route('certificate.templates.index')->with('success', 'Template berhasil diperbarui');
     }
 
     /**
@@ -97,7 +97,7 @@ class CertificateTemplateController extends Controller
             return ResponseHelper::success('Template berhasil dihapus');
         }
 
-        return redirect()->back()->with('success', 'Template berhasil dihapus');
+        return redirect()->route('certificate.templates.index')->with('success', 'Template berhasil dihapus');
     }
 
     /**
