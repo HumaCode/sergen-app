@@ -19,6 +19,7 @@ class TemplateResource extends JsonResource
             'file_size'          => $media?->size ?? null,
             'mime_type'          => $media?->mime_type ?? null,
             'orientation'        => ucfirst($this->orientation ?? 'landscape'),
+            'placeholders'       => $this->placeholders ?? null,
             'is_active'          => (bool) $this->is_active,
             'dimension'          => strtolower($this->orientation) === 'portrait' ? '1414×2000 px' : '2000×1414 px',
             'used_batches_count' => $this->batches_count ?? ($this->relationLoaded('batches') ? $this->batches->count() : 0),

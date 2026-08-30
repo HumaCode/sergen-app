@@ -20,6 +20,7 @@ interface TemplateCardProps {
     onEdit?: (template: TemplateItem) => void;
     onDelete?: (template: TemplateItem) => void;
     onToggleStatus?: (template: TemplateItem, onFinish?: () => void) => void;
+    onConfigureCanvas?: (template: TemplateItem) => void;
 }
 
 const RIBBON_ICONS = [
@@ -37,7 +38,7 @@ function getRibbonStyle(id: string) {
     return RIBBON_ICONS[Math.abs(hash) % RIBBON_ICONS.length];
 }
 
-export function TemplateCard({ template, onEdit, onDelete, onToggleStatus }: TemplateCardProps) {
+export function TemplateCard({ template, onEdit, onDelete, onToggleStatus, onConfigureCanvas }: TemplateCardProps) {
     const ribbon = getRibbonStyle(template.id);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isTogglingStatus, setIsTogglingStatus] = useState(false);
@@ -119,6 +120,7 @@ export function TemplateCard({ template, onEdit, onDelete, onToggleStatus }: Tem
                                 type="button"
                                 onClick={() => {
                                     setDropdownOpen(false);
+                                    if (onConfigureCanvas) onConfigureCanvas(template);
                                 }}
                             >
                                 <i className="bi bi-sliders"></i> Atur Field Canvas

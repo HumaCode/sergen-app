@@ -185,7 +185,7 @@ export function UploadTemplateModal({ show, onClose, onSuccessNotification }: Up
                             </button>
                         </div>
                     ) : (
-                        <div className="drop-zone-box" onClick={() => fileInputRef.current?.click()} style={{ padding: '40px 24px' }}>
+                        <div className="drop-zone-box" onClick={() => fileInputRef.current?.click()} style={{ padding: '36px 24px' }}>
                             <i className="bi bi-cloud-arrow-up" style={{ fontSize: '36px' }}></i>
                             <div className="dz-title" style={{ fontSize: '14px', marginTop: '6px' }}>
                                 Klik atau seret file desain ke sini
@@ -198,6 +198,11 @@ export function UploadTemplateModal({ show, onClose, onSuccessNotification }: Up
                             {errors.file}
                         </div>
                     )}
+
+                    <div style={{ margin: '12px 0 16px 0', padding: '10px 14px', borderRadius: '10px', background: 'var(--sun-soft)', border: '1px solid #FFC978', fontSize: '11.5px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <i className="bi bi-lightbulb-fill" style={{ color: '#D97706', fontSize: '16px', flexShrink: 0 }}></i>
+                        <span><strong>Tips Canva:</strong> Untuk hasil terbaik, unggah gambar latar belakang polos (tanpa teks tulisan bawaan) agar teks Nama, Judul, Tanggal, dan TTD dapat diatur & di-edit dinamis secara presisi.</span>
+                    </div>
 
                     <div className="modal-grid-2col">
                         <div className="m-field-group">

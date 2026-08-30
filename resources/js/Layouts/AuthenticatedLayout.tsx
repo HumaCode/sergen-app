@@ -7,8 +7,9 @@ import '@/../css/global.css';
 
 export default function AuthenticatedLayout({
     header,
+    defaultSidebarCollapsed = false,
     children,
-}: PropsWithChildren<{ header?: ReactNode }>) {
+}: PropsWithChildren<{ header?: ReactNode; defaultSidebarCollapsed?: boolean }>) {
     const pageProps = usePage<PageProps>().props;
     const user = pageProps.auth.user;
     const menus = pageProps.menus || {};
@@ -23,7 +24,7 @@ export default function AuthenticatedLayout({
         toggleSidebar,
         closeMobileSidebar,
         toggleUserDropdown,
-    } = useLayoutState();
+    } = useLayoutState(defaultSidebarCollapsed);
 
     const handleConfirmLogout = () => {
         router.post(route('logout'), {}, {

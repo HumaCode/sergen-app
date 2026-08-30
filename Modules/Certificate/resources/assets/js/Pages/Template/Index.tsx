@@ -10,6 +10,7 @@ import { TemplateCard, TemplateItem } from './Partials/TemplateCard';
 import { TemplateToolbar } from './Partials/TemplateToolbar';
 import { UploadTemplateModal } from './Partials/UploadTemplateModal';
 import { EditTemplateModal } from './Partials/EditTemplateModal';
+import { ConfigureCanvasModal } from './Partials/ConfigureCanvasModal';
 
 interface PaginationMeta {
     current_page: number;
@@ -55,6 +56,7 @@ export default function Index({ templates, stats, filters }: IndexProps) {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState<TemplateItem | null>(null);
+    const [configuringTemplate, setConfiguringTemplate] = useState<TemplateItem | null>(null);
     const [deletingTemplate, setDeletingTemplate] = useState<TemplateItem | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -207,6 +209,7 @@ export default function Index({ templates, stats, filters }: IndexProps) {
                             onEdit={(item) => setEditingTemplate(item)}
                             onDelete={(item) => setDeletingTemplate(item)}
                             onToggleStatus={handleToggleStatus}
+                            onConfigureCanvas={(item) => setConfiguringTemplate(item)}
                         />
                     ))}
 
@@ -230,6 +233,16 @@ export default function Index({ templates, stats, filters }: IndexProps) {
                 onSuccessNotification={(msg) => {
                     triggerToast(msg, 'success');
                     router.reload({ only: ['templates', 'stats'] });
+                }}
+            />
+
+            <ConfigureCanvasModal
+                show={!!configuringTemplate}
+                template={configuringTemplate}
+                onClose={() => setConfiguringTemplate(null)}
+                onSaved={() => {
+                    triggerToast('Koordinat canvas berhasil disimpan!', 'success');
+                    router.reload({ only: ['templates'] });
                 }}
             />
 

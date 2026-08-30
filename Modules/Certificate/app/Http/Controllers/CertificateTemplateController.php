@@ -117,4 +117,25 @@ class CertificateTemplateController extends Controller
             'Cache-Control' => 'no-cache, private',
         ]);
     }
+
+    /**
+     * Update placeholder coordinates for template.
+     */
+    public function updatePlaceholders(string $id, \Illuminate\Http\Request $request): JsonResponse|RedirectResponse
+    {
+        $request->validate([
+            'placeholders' => 'required|array',
+        ]);
+
+        $template = \Modules\Certificate\Models\CertificateTemplate::findOrFail($id);
+        $template->update([
+            'placeholders' => $request->input('placeholders'),
+        ]);
+
+        if (request()->wantsJson()) {
+            return ResponseHelper::success('Koordinat canvas template berhasil diperbarui', new TemplateResource($template));
+        }
+
+        return redirect()->back()->with('success', 'Koordinat canvas template berhasil diperbarui');
+    }
 }

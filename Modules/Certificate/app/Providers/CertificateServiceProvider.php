@@ -42,5 +42,15 @@ class CertificateServiceProvider extends ModuleServiceProvider
             \Modules\Certificate\Services\Contracts\CertificateTemplateServiceInterface::class,
             \Modules\Certificate\Services\CertificateTemplateService::class
         );
+
+        $this->app->bind(
+            \Modules\Certificate\Repositories\Contracts\CertificateRepositoryInterface::class,
+            \Modules\Certificate\Repositories\Eloquent\CertificateRepository::class
+        );
+
+        $this->app->bind(
+            \Modules\Certificate\Services\Contracts\CertificateServiceInterface::class,
+            \Modules\Certificate\Services\CertificateService::class
+        );
     }
 }
