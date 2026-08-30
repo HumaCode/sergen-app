@@ -14,7 +14,7 @@ class TemplateResource extends JsonResource
         return [
             'id'                 => $this->id,
             'name'               => $this->name,
-            'file_url'           => $media ? route('certificate.templates.media', $this->id) : null,
+            'file_url'           => $media ? route('certificate.templates.media', $this->id) . '?v=' . ($media->updated_at?->timestamp ?? $this->updated_at?->timestamp ?? time()) : null,
             'file_name'          => $media?->file_name ?? null,
             'file_size'          => $media?->size ?? null,
             'mime_type'          => $media?->mime_type ?? null,

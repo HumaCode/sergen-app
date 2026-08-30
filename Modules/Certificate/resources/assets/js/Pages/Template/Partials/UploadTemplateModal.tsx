@@ -61,7 +61,6 @@ export function UploadTemplateModal({ show, onClose, onSuccessNotification }: Up
             forceFormData: true,
             onSuccess: () => {
                 handleClose();
-                router.visit(window.location.href, { preserveScroll: true, replace: true });
                 if (onSuccessNotification) {
                     onSuccessNotification(`Template "${templateName}" berhasil disimpan!`);
                 }
@@ -166,13 +165,23 @@ export function UploadTemplateModal({ show, onClose, onSuccessNotification }: Up
                             <button
                                 type="button"
                                 className="btn-ghost-cancel"
-                                style={{ marginTop: '12px', padding: '6px 16px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                style={{
+                                    marginTop: '12px',
+                                    padding: '6px 16px',
+                                    fontSize: '12px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px',
+                                    lineHeight: 1,
+                                }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     fileInputRef.current?.click();
                                 }}
                             >
-                                <i className="bi bi-arrow-repeat"></i> Ganti Berkas
+                                <i className="bi bi-arrow-repeat" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', lineHeight: 1 }}></i>
+                                <span>Ganti Berkas</span>
                             </button>
                         </div>
                     ) : (

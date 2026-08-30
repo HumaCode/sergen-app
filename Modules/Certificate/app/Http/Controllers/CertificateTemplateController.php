@@ -114,7 +114,7 @@ class CertificateTemplateController extends Controller
 
         return response()->file($media->getPath(), [
             'Content-Type'  => $media->mime_type ?? 'image/png',
-            'Cache-Control' => 'private, max-age=86400',
+            'Cache-Control' => 'no-cache, private',
         ]);
     }
 }

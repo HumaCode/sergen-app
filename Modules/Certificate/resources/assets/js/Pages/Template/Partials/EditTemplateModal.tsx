@@ -80,7 +80,6 @@ export function EditTemplateModal({ show, template, onClose, onSuccessNotificati
             forceFormData: true,
             onSuccess: () => {
                 handleClose();
-                router.visit(window.location.href, { preserveScroll: true, replace: true });
                 if (onSuccessNotification) {
                     onSuccessNotification(`Template "${updatedName}" berhasil diperbarui!`);
                 }
@@ -218,13 +217,23 @@ export function EditTemplateModal({ show, template, onClose, onSuccessNotificati
                         <button
                             type="button"
                             className="btn-ghost-cancel"
-                            style={{ marginTop: '12px', padding: '5px 14px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                            style={{
+                                marginTop: '12px',
+                                padding: '6px 16px',
+                                fontSize: '12px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                                lineHeight: 1,
+                            }}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 fileInputRef.current?.click();
                             }}
                         >
-                            <i className="bi bi-arrow-repeat"></i> {data.file ? 'Ganti Berkas Lagi' : 'Ganti Berkas Desain'}
+                            <i className="bi bi-arrow-repeat" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', lineHeight: 1 }}></i>
+                            <span>{data.file ? 'Ganti Berkas Lagi' : 'Ganti Berkas Desain'}</span>
                         </button>
                     </div>
 
